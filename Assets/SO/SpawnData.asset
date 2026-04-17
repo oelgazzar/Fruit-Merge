@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 894b520f593f32d45b11bda6d3e258de, type: 3}
+  m_Name: SpawnData
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnData
+  Prefab: {fileID: -6488982405047331336, guid: 5fa4cdb802ced8647aadb5104aa441d9, type: 3}
+  Data: {fileID: 11400000, guid: 6fd75df25ca7520429ccc5770d231d0d, type: 2}
+  SpawnWeightCurve:
+    MaxDifficultyScore: 3000
+    TierWeights:
+    - Tier: 0
+      StartWeight: 1
+      EndWeight: 0.2
+    - Tier: 1
+      StartWeight: 0.3
+      EndWeight: 0.6
+    - Tier: 2
+      StartWeight: 0
+      EndWeight: 0.5
+    - Tier: 3
+      StartWeight: 0
+      EndWeight: 0
+    - Tier: 4
+      StartWeight: 0
+      EndWeight: 0
+    - Tier: 5
+      StartWeight: 0
+      EndWeight: 0
+    - Tier: 6
+      StartWeight: 0
+      EndWeight: 0
+    - Tier: 7
+      StartWeight: 0
+      EndWeight: 0

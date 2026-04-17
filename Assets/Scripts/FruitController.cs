@@ -7,6 +7,8 @@ public class FruitController : MonoBehaviour
 {
     [SerializeField] LineRenderer _lineRenderer;
     [SerializeField] float _lineOriginOffset;
+    [SerializeField] float _xRange;
+
 
     public static event Action OnFruitDropped;
     
@@ -23,7 +25,7 @@ public class FruitController : MonoBehaviour
             ToggleIndicator(true);
             var mousePos = Mouse.current.position.ReadValue();
             var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            var x = Mathf.Clamp(worldPos.x, -5, 5);
+            var x = Mathf.Clamp(worldPos.x, -_xRange, _xRange);
             _activeFruit.transform.position = new Vector3(
                 x, _activeFruit.transform.position.y, _activeFruit.transform.position.z);
 
@@ -31,13 +33,19 @@ public class FruitController : MonoBehaviour
         }
         else if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            _activeFruit.GetComponent<Rigidbody2D>().simulated = true;
-            _activeFruit = null;
-            OnFruitDropped?.Invoke();
-        } else
+            DropFruit();
+        }
+        else
         {
             ToggleIndicator(false);
         }        
+    }
+
+    void DropFruit()
+    {
+        _activeFruit.GetComponent<Rigidbody2D>().simulated = true;
+        _activeFruit = null;
+        OnFruitDropped?.Invoke();
     }
 
     private void UpdateIndicator()

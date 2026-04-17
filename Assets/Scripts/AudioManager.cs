@@ -12,7 +12,7 @@ public class AudioManager : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
     }
-    private void MergeManager_OnFruitMerge()
+    private void MergeManager_OnFruitMerge(Fruit _)
     {
         _audioSource.PlayOneShot(_mergeSfx);
     }
