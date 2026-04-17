@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc5c2884ffa3cca4eb57812fcdde2785, type: 3}
+  m_Name: FruitData
+  m_EditorClassIdentifier: Assembly-CSharp::FruitData
+  Fruits:
+  - Type: 0
+    Color: {r: 0.3529412, g: 0.43921572, b: 0.77647066, a: 0}
+    Sprite: {fileID: 347904302668798301, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+    Size: 0.4
+  - Type: 1
+    Color: {r: 0.9058824, g: 0.18823531, b: 0.29411766, a: 0}
+    Sprite: {fileID: -6037624684864323581, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+    Size: 0.6
+  - Type: 2
+    Color: {r: 0.7294118, g: 0.4156863, b: 0.18039216, a: 0}
+    Sprite: {fileID: -5769943833962801094, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+    Size: 0.8
+  - Type: 3
+    Color: {r: 0.9960785, g: 0.3647059, b: 0.3803922, a: 0}
+    Sprite: {fileID: 5560403320537664419, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+    Size: 1
+  - Type: 4
+    Color: {r: 0.9921569, g: 0.70980394, b: 0.09411766, a: 0}
+    Sprite: {fileID: -3723830307603579369, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+    Size: 1.2
+  - Type: 5
+    Color: {r: 0.38823533, g: 0.6, b: 0.16078432, a: 0}
+    Sprite: {fileID: -2030353180474961362, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+    Size: 1.4
