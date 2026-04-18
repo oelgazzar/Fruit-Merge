@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FruitSpawner : MonoBehaviour
@@ -8,18 +9,49 @@ public class FruitSpawner : MonoBehaviour
     [SerializeField] Transform _spawnPoint;
     [SerializeField] FruitData _fruitsData;
     [SerializeField] SpawnData _spawnData;
+    [SerializeField] int _nextFruitQueueSize = 3;
 
+    public static event Action<FruitModel[]> OnNextQueueUpdated;
     public static event Action<Fruit> OnFruitSpawn;
+
+    readonly LinkedList<FruitModel> _nextFruitQueue = new();
 
     private void Start()
     {
+        InitNextFruitQueue();
         SpawnFruit();
+    }
+
+    private void InitNextFruitQueue()
+    {
+        for (var i = 0; i < _nextFruitQueueSize; i++)
+        {
+            AddNewFruitToNextQueue();
+        }
+        
+        OnNextQueueUpdated?.Invoke(_nextFruitQueue.ToArray());
+    }
+
+    void AddNewFruitToNextQueue()
+    {
+        var fruitModel = GetRandomFruitModel();
+        _nextFruitQueue.AddLast(fruitModel);
+    }
+
+    FruitModel PullFromNextQueue()
+    {
+        var fruitModel = _nextFruitQueue.First();
+        _nextFruitQueue.RemoveFirst();
+        AddNewFruitToNextQueue();
+        
+        OnNextQueueUpdated?.Invoke(_nextFruitQueue.ToArray());
+        return fruitModel;
     }
 
     void SpawnFruit()
     {
         var fruit = Instantiate(_fruitPrefab, _spawnPoint.position, Quaternion.identity);
-        fruit.Init(GetRandomFruitModel());
+        fruit.Init(PullFromNextQueue());
         OnFruitSpawn?.Invoke(fruit);
     }
 
