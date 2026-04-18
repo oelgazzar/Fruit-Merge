@@ -5,12 +5,12 @@ public class Fruit : MonoBehaviour
 {
     public static event Action<Fruit, Fruit> OnFruitContact;
 
-    public int Tier => _tier;
-    public Color Color => _color;
+    public FruitModel Model => _model;
+    public string ID => _id;
     public bool IsMerged => _isMerged;
 
-    int _tier;
-    Color _color;
+    FruitModel _model;
+    string _id;
     bool _isMerged;
     SpriteRenderer _spriteRenderer;
 
@@ -18,10 +18,16 @@ public class Fruit : MonoBehaviour
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
+
+    private void OnEnable()
+    {
+        _id = Guid.NewGuid().ToString();
+    }
+
     public void Init(FruitModel model)
     {
-        _tier = model.Tier;
-        _color = model.Color;
+        _isMerged = false;
+        _model = model;
         _spriteRenderer.sprite = model.Sprite;
         transform.localScale *= model.Size;
     }
@@ -30,7 +36,7 @@ public class Fruit : MonoBehaviour
     {
         if (collision.collider.TryGetComponent<Fruit>(out var otherFruit))
         {
-            if (otherFruit.Tier == Tier)
+            if (otherFruit.Model.Tier == _model.Tier)
             {
                 OnFruitContact?.Invoke(this, otherFruit);
             }

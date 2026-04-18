@@ -1,6 +1,7 @@
 using NUnit.Framework.Constraints;
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class FruitController : MonoBehaviour
@@ -10,7 +11,8 @@ public class FruitController : MonoBehaviour
     [SerializeField] float _xRange;
 
 
-    public static event Action OnFruitDropped;
+    public static event Action<Fruit> OnFruitDropStarted;
+    public static event Action<Fruit> OnFruitDropCompleted;
     
     Fruit _activeFruit;
 
@@ -20,20 +22,22 @@ public class FruitController : MonoBehaviour
     {
         if (_activeFruit == null) return;
 
+        var mousePos = Mouse.current.position.ReadValue();
+        var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        if (worldPos.y > 2) return;
         if (Mouse.current.leftButton.isPressed)
         {
             ToggleIndicator(true);
-            var mousePos = Mouse.current.position.ReadValue();
-            var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
             var x = Mathf.Clamp(worldPos.x, -_xRange, _xRange);
             _activeFruit.transform.position = new Vector3(
                 x, _activeFruit.transform.position.y, _activeFruit.transform.position.z);
 
             UpdateIndicator();
         }
-        else if (Mouse.current.leftButton.wasReleasedThisFrame)
+        else if (Mouse.current.leftButton.wasReleasedThisFrame && worldPos.y < 2)
         {
-            DropFruit();
+            if (worldPos.y < 2)
+                DropFruit();
         }
         else
         {
@@ -43,9 +47,12 @@ public class FruitController : MonoBehaviour
 
     void DropFruit()
     {
+        var fruit = _activeFruit;
+        OnFruitDropStarted?.Invoke(fruit);
+
         _activeFruit.GetComponent<Rigidbody2D>().simulated = true;
         _activeFruit = null;
-        OnFruitDropped?.Invoke();
+        OnFruitDropCompleted?.Invoke(fruit);
     }
 
     private void UpdateIndicator()
@@ -72,6 +79,8 @@ public class FruitController : MonoBehaviour
 
     private void FruitSpawner_OnFruitSpawn(Fruit fruit)
     {
+        //if (_activeFruit != null) Destroy(_activeFruit.gameObject);
+
         _activeFruit = fruit;
         var collider = _activeFruit.GetComponent<Collider2D>();
         _indicatorStartY = collider.bounds.min.y;
@@ -80,7 +89,7 @@ public class FruitController : MonoBehaviour
             // COLOR keys (RGB)
             new GradientColorKey[]
             {
-                new (fruit.Color, 0.5f),
+                new (fruit.Model.Color, 0.5f),
             },
 
             // ALPHA keys (transparency)

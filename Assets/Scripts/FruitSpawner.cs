@@ -9,49 +9,70 @@ public class FruitSpawner : MonoBehaviour
     [SerializeField] Transform _spawnPoint;
     [SerializeField] FruitData _fruitsData;
     [SerializeField] SpawnData _spawnData;
-    [SerializeField] int _nextFruitQueueSize = 3;
+    [SerializeField] int _queueSize = 4;
 
     public static event Action<FruitModel[]> OnNextQueueUpdated;
     public static event Action<Fruit> OnFruitSpawn;
 
-    readonly LinkedList<FruitModel> _nextFruitQueue = new();
+    public static FruitSpawner Instance { get; private set; }
+    public FruitModel[] Queue => _fruitQueue.ToArray();
+
+    // This include both active and next n fruits
+    readonly LinkedList<FruitModel> _fruitQueue = new();
+    FruitModel[] NextQueue => _fruitQueue.ToArray()[1.._queueSize];
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
-        InitNextFruitQueue();
-        SpawnFruit();
+        InitFruitQueue();
+        SpawnFruit(_fruitQueue.First());
     }
 
-    private void InitNextFruitQueue()
+    public void RestoreQueue(FruitModel[] queue)
     {
-        for (var i = 0; i < _nextFruitQueueSize; i++)
+        _fruitQueue.Clear();
+
+        for (var i = 0; i < queue.Length; i++)
         {
-            AddNewFruitToNextQueue();
+            PushToQueue(queue[i]);
         }
-        
-        OnNextQueueUpdated?.Invoke(_nextFruitQueue.ToArray());
+
+        SpawnFruit(_fruitQueue.First());
+        OnNextQueueUpdated?.Invoke(NextQueue);
     }
 
-    void AddNewFruitToNextQueue()
+
+    private void InitFruitQueue()
     {
-        var fruitModel = GetRandomFruitModel();
-        _nextFruitQueue.AddLast(fruitModel);
+        for (var i = 0; i < _queueSize; i++)
+        {
+            PushToQueue(GetRandomFruitModel());
+        }
+
+        OnNextQueueUpdated?.Invoke(NextQueue);
     }
 
-    FruitModel PullFromNextQueue()
+    void PushToQueue(FruitModel fruitModel)
     {
-        var fruitModel = _nextFruitQueue.First();
-        _nextFruitQueue.RemoveFirst();
-        AddNewFruitToNextQueue();
-        
-        OnNextQueueUpdated?.Invoke(_nextFruitQueue.ToArray());
-        return fruitModel;
+        _fruitQueue.AddLast(fruitModel);
     }
 
-    void SpawnFruit()
+    void AdvanceQueue()
+    {
+        _fruitQueue.RemoveFirst();
+        PushToQueue(GetRandomFruitModel());
+
+        OnNextQueueUpdated?.Invoke(NextQueue);
+    }
+
+    void SpawnFruit(FruitModel fruitModel)
     {
         var fruit = Instantiate(_fruitPrefab, _spawnPoint.position, Quaternion.identity);
-        fruit.Init(PullFromNextQueue());
+        fruit.Init(fruitModel);
         OnFruitSpawn?.Invoke(fruit);
     }
 
@@ -93,16 +114,17 @@ public class FruitSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        FruitController.OnFruitDropped += FruitController_OnFruitDropped;
+        FruitController.OnFruitDropCompleted += FruitController_OnFruitDropped;
     }
 
     private void OnDisable()
     {
-        FruitController.OnFruitDropped -= FruitController_OnFruitDropped;        
+        FruitController.OnFruitDropCompleted -= FruitController_OnFruitDropped;        
     }
 
-    private void FruitController_OnFruitDropped()
+    private void FruitController_OnFruitDropped(Fruit _)
     {
-        SpawnFruit();
+        AdvanceQueue();
+        SpawnFruit(_fruitQueue.First());
     }
 }

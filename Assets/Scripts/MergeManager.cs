@@ -7,7 +7,7 @@ public class MergeManager : MonoBehaviour
     [SerializeField] Fruit _fruitPrefab;
     [SerializeField] FruitData _fruits;
 
-    public static event Action<Fruit> OnFruitMerge;
+    public static event Action<Fruit, Fruit, Fruit> OnFruitMerge;
 
     readonly Dictionary<int, FruitModel> _fruitLookUp = new();
 
@@ -34,12 +34,14 @@ public class MergeManager : MonoBehaviour
         // Guard against duplicates
         if (fruit1.IsMerged || fruit2.IsMerged) return;
 
-        var nextTier = fruit1.Tier + 1;
+        var nextTier = fruit1.Model.Tier + 1;
+        Fruit newFruit = null;
+
         if (_fruitLookUp.TryGetValue(nextTier, out var fruitModel))
         {
-            var fruit = Instantiate(_fruitPrefab, fruit1.transform.position, Quaternion.identity);
-            fruit.Init(fruitModel);
-            fruit.GetComponent<Rigidbody2D>().simulated = true;
+            newFruit = Instantiate(_fruitPrefab, fruit1.transform.position, Quaternion.identity);
+            newFruit.Init(fruitModel);
+            newFruit.GetComponent<Rigidbody2D>().simulated = true;
         }
 
         fruit1.MarkAsMerged();
@@ -48,6 +50,6 @@ public class MergeManager : MonoBehaviour
         Destroy(fruit1.gameObject);
         Destroy(fruit2.gameObject);
         
-        OnFruitMerge?.Invoke(fruit1);
+        OnFruitMerge?.Invoke(fruit1, fruit2, newFruit);
     }
 }
