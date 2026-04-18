@@ -33,6 +33,11 @@ public class FruitSpawner : MonoBehaviour
 
     private void Start()
     {
+        Init();
+    }
+
+    public void Init()
+    {
         InitFruitQueue();
         SpawnFruit(_fruitQueue.First());
     }
@@ -118,6 +123,11 @@ public class FruitSpawner : MonoBehaviour
     {
         AdvanceQueue();
         SpawnFruit(_fruitQueue.First());
+    }
+
+    public void ClearQueue()
+    {
+        _fruitQueue.Clear();
     }
 
     private void OnEnable()

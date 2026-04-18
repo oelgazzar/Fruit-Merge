@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -37,18 +38,46 @@ public class FruitTracker : MonoBehaviour
 
     public void RestoreActiveFruits(Fruit[] fruits)
     {
-        foreach (var fruit in _activeFruits)
-        {
-            Destroy(fruit.gameObject);
-        }
-
-        _activeFruits.Clear();
+        ClearBoard();
 
         foreach (var fruit in fruits)
         {
             _activeFruits.Add(fruit);
         }
     }    
+
+    public void Reduce()
+    {
+        var fruitCount = _activeFruits.Count;
+        var fruitsList = _activeFruits.ToList();
+        foreach (var i in GetRandomIndices(fruitCount, fruitCount / 2))
+        {
+            var fruit = fruitsList[i];
+            Destroy(fruit.gameObject);
+            _activeFruits.Remove(fruit);
+        }
+    }
+
+    IEnumerable<int> GetRandomIndices(int n, int k)
+    {
+        var indices = Enumerable.Range(0, n).ToArray();
+        for (var i = 0; i < k; i++)
+        {
+            var r = UnityEngine.Random.Range(i, n);
+            (indices[i], indices[r]) = (indices[r], indices[i]);
+            yield return indices[i];
+        }
+    }
+
+    public void ClearBoard()
+    {
+        foreach (var fruit in _activeFruits)
+        {
+            Destroy(fruit.gameObject);
+        }
+
+        _activeFruits.Clear();
+    }
 
     private void OnEnable()
     {

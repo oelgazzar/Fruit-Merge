@@ -19,7 +19,7 @@ public class HistoryManager : MonoBehaviour
         Instance = this;
     }
 
-    void SaveSnapshot()
+    public void SaveSnapshot()
     {
         var snapshot = new StateSnapshot
         {
@@ -96,6 +96,10 @@ public class HistoryManager : MonoBehaviour
         if (snapshotRecord.Count > 0)
             RestoreSnapshot(snapshotRecord.Pop());
     }
+    public void ClearHistory()
+    {
+        snapshotRecord.Clear();
+    }
 
     private void OnEnable()
     {
@@ -105,5 +109,6 @@ public class HistoryManager : MonoBehaviour
     private void OnDisable()
     {
         FruitController.OnFruitDropStarted -= OnFruitDropStarted;
-    }    
+    }
+
 }
