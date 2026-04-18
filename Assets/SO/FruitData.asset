@@ -12,44 +12,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5c2884ffa3cca4eb57812fcdde2785, type: 3}
   m_Name: FruitData
   m_EditorClassIdentifier: Assembly-CSharp::FruitData
-  Fruits:
+  Data:
   - Name: Blueberry
     Tier: 0
-    Color: {r: 0.3529412, g: 0.43921572, b: 0.77647066, a: 0}
+    Color: {r: 0.26666668, g: 0.3647059, b: 0.7411765, a: 0}
     Sprite: {fileID: 347904302668798301, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 0.4
-  - Name: strawberry
+  - Name: Strawberry
     Tier: 1
-    Color: {r: 0.9058824, g: 0.18823531, b: 0.29411766, a: 0}
+    Color: {r: 0.92549026, g: 0.22352943, b: 0.30980393, a: 0}
     Sprite: {fileID: -6037624684864323581, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 0.6
   - Name: Orange
     Tier: 2
-    Color: {r: 0.7294118, g: 0.4156863, b: 0.18039216, a: 0}
+    Color: {r: 0.9490197, g: 0.36078432, b: 0.011764707, a: 0}
     Sprite: {fileID: -5769943833962801094, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 0.8
   - Name: Apple
     Tier: 3
-    Color: {r: 0.9960785, g: 0.3647059, b: 0.3803922, a: 0}
+    Color: {r: 0.9058824, g: 0.19607845, b: 0.28627452, a: 0}
     Sprite: {fileID: 5560403320537664419, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 1
   - Name: Mango
     Tier: 4
-    Color: {r: 0.9921569, g: 0.70980394, b: 0.09411766, a: 0}
+    Color: {r: 1, g: 0.81568635, b: 0.15686275, a: 0}
     Sprite: {fileID: -3723830307603579369, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 1.2
-  - Name: Grape
+  - Name: Grap
     Tier: 5
-    Color: {r: 0.56078434, g: 0.34509805, b: 0.75294125, a: 0}
+    Color: {r: 0.58431375, g: 0.3921569, b: 0.77647066, a: 0}
     Sprite: {fileID: 4364699071801196366, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 1.4
   - Name: Pineapple
     Tier: 6
-    Color: {r: 0.9686275, g: 0.48627454, b: 0, a: 0}
+    Color: {r: 0.9725491, g: 0.5803922, b: 0.03137255, a: 0}
     Sprite: {fileID: -1047544943934930643, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 1.6
-  - Name: Watermelon
-    Tier: 7
-    Color: {r: 0.38823533, g: 0.6, b: 0.16078432, a: 0}
-    Sprite: {fileID: -2030353180474961362, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
+  - Name: Pineapple
+    Tier: 6
+    Color: {r: 0.9725491, g: 0.5803922, b: 0.03137255, a: 0}
+    Sprite: {fileID: -1047544943934930643, guid: c44e12049cf0e5d418e6dc874cdad701, type: 3}
     Size: 1.8

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LineAnimator : MonoBehaviour
 {
+    [SerializeField] float _speed = 2f;
+
     Material _material;
 
     private void Awake()
@@ -13,6 +15,6 @@ public class LineAnimator : MonoBehaviour
 
     private void Update()
     {
-        _material.mainTextureOffset -= new Vector2(2 * Time.deltaTime, 0);
+        _material.mainTextureOffset -= new Vector2(_speed * Time.deltaTime, 0);
     }
 }

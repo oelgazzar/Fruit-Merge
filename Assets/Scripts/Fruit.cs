@@ -1,27 +1,26 @@
 using System;
 using UnityEngine;
 
+/* 
+ * Visual fruit component
+ * Detect collisions and publish OnFruitContact event
+ */
+
 public class Fruit : MonoBehaviour
 {
     public static event Action<Fruit, Fruit> OnFruitContact;
 
+    FruitModel _model;
     public FruitModel Model => _model;
-    public string ID => _id;
+
+    bool _isMerged;
     public bool IsMerged => _isMerged;
 
-    FruitModel _model;
-    string _id;
-    bool _isMerged;
     SpriteRenderer _spriteRenderer;
 
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
-    private void OnEnable()
-    {
-        _id = Guid.NewGuid().ToString();
     }
 
     public void Init(FruitModel model)
@@ -43,5 +42,5 @@ public class Fruit : MonoBehaviour
         }
     }
 
-    public void MarkAsMerged() => _isMerged = true;
+    public void MarkMerged() => _isMerged = true;
 }

@@ -13,23 +13,13 @@ public class MergeManager : MonoBehaviour
 
     private void Start()
     {
-        foreach (var fruitModel in _fruits.Fruits)
+        foreach (var fruitModel in _fruits.Data)
         {
             _fruitLookUp[fruitModel.Tier] = fruitModel;
         }
     }
 
-    private void OnEnable()
-    {
-        Fruit.OnFruitContact += Fruit_OnFruitMerg;
-    }
-
-    private void OnDisable()
-    {
-        Fruit.OnFruitContact -= Fruit_OnFruitMerg;
-    }
-
-    private void Fruit_OnFruitMerg(Fruit fruit1, Fruit fruit2)
+    private void Merge(Fruit fruit1, Fruit fruit2)
     {
         // Guard against duplicates
         if (fruit1.IsMerged || fruit2.IsMerged) return;
@@ -44,12 +34,21 @@ public class MergeManager : MonoBehaviour
             newFruit.GetComponent<Rigidbody2D>().simulated = true;
         }
 
-        fruit1.MarkAsMerged();
-        fruit2.MarkAsMerged();
+        fruit1.MarkMerged();
+        fruit2.MarkMerged();
 
         Destroy(fruit1.gameObject);
         Destroy(fruit2.gameObject);
         
         OnFruitMerge?.Invoke(fruit1, fruit2, newFruit);
+    }
+    private void OnEnable()
+    {
+        Fruit.OnFruitContact += Merge;
+    }
+
+    private void OnDisable()
+    {
+        Fruit.OnFruitContact -= Merge;
     }
 }

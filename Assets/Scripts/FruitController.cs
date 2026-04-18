@@ -1,104 +1,99 @@
-using NUnit.Framework.Constraints;
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+
+/*
+ * Control movement of active fruit
+ * Show aim indicator
+ * Publish Drop events
+ */
 
 public class FruitController : MonoBehaviour
 {
-    [SerializeField] LineRenderer _lineRenderer;
-    [SerializeField] float _lineOriginOffset;
-    [SerializeField] float _xRange;
-
+    [SerializeField] Rect _dragArea;
+    
+    [Header("Indicator")]
+    [SerializeField] AimIndictor _aimIndicator;
+    [SerializeField] float _Indicatoroffset;
 
     public static event Action<Fruit> OnFruitDropStarted;
-    public static event Action<Fruit> OnFruitDropCompleted;
+    public static event Action<Fruit> OnFruitDrop;
     
     Fruit _activeFruit;
-
-    float _indicatorStartY;
 
     private void Update()
     {
         if (_activeFruit == null) return;
 
-        var mousePos = Mouse.current.position.ReadValue();
-        var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-        if (worldPos.y > 2) return;
+        HandleInput();
+    }
+
+    void HandleInput()
+    {
+        var mousePos = GetMousePosition();
+        if (!_dragArea.Contains(mousePos)) return;
+
         if (Mouse.current.leftButton.isPressed)
         {
             ToggleIndicator(true);
-            var x = Mathf.Clamp(worldPos.x, -_xRange, _xRange);
-            _activeFruit.transform.position = new Vector3(
-                x, _activeFruit.transform.position.y, _activeFruit.transform.position.z);
 
-            UpdateIndicator();
+            _activeFruit.transform.position = new Vector2(mousePos.x, _activeFruit.transform.position.y);
+
+            RefreshIndicator();
         }
-        else if (Mouse.current.leftButton.wasReleasedThisFrame && worldPos.y < 2)
+        else if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            if (worldPos.y < 2)
-                DropFruit();
+            DropFruit();
         }
         else
         {
             ToggleIndicator(false);
-        }        
+        }
+    }
+
+    Vector2 GetMousePosition()
+    {
+        var mousePos = Mouse.current.position.ReadValue();
+        var worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        return worldPos;
     }
 
     void DropFruit()
     {
-        var fruit = _activeFruit;
-        OnFruitDropStarted?.Invoke(fruit);
+        var droppedFruit = _activeFruit;
+        OnFruitDropStarted?.Invoke(droppedFruit);
 
         _activeFruit.GetComponent<Rigidbody2D>().simulated = true;
         _activeFruit = null;
-        OnFruitDropCompleted?.Invoke(fruit);
+        OnFruitDrop?.Invoke(droppedFruit);
     }
 
-    private void UpdateIndicator()
+    private void RefreshIndicator()
     {
-        var origin = new Vector2(_activeFruit.transform.position.x, _indicatorStartY);
+        var origin = new Vector2(
+            _activeFruit.transform.position.x,
+            _activeFruit.transform.position.y - _activeFruit.Model.Size/2);
         var hit = Physics2D.Raycast(origin, Vector2.down);
         if (hit)
         {
-            var lineEnd = hit.point;
-            var midPoint = Vector2.Lerp(_activeFruit.transform.position, lineEnd, .5f);
-            _lineRenderer.SetPositions(new Vector3[] { origin, midPoint, lineEnd });
+            _aimIndicator.SetPoints(origin, hit.point);
         }
     }
 
-    private void ToggleIndicator(bool value)
+    private void ToggleIndicator(bool active)
     {
-        _lineRenderer.gameObject.SetActive(value);
+        _aimIndicator.gameObject.SetActive(active);
+        if (active)
+            _aimIndicator.SetColor(_activeFruit.Model.Color);
+    }
+
+    private void OnFruitSpawn(Fruit fruit)
+    {
+        _activeFruit = fruit;
     }
 
     private void OnEnable()
     {
-        FruitSpawner.OnFruitSpawn += FruitSpawner_OnFruitSpawn;
-    }
-
-    private void FruitSpawner_OnFruitSpawn(Fruit fruit)
-    {
-        //if (_activeFruit != null) Destroy(_activeFruit.gameObject);
-
-        _activeFruit = fruit;
-        var collider = _activeFruit.GetComponent<Collider2D>();
-        _indicatorStartY = collider.bounds.min.y;
-        var gradient = new Gradient();
-        gradient.SetKeys(
-            // COLOR keys (RGB)
-            new GradientColorKey[]
-            {
-                new (fruit.Model.Color, 0.5f),
-            },
-
-            // ALPHA keys (transparency)
-            new GradientAlphaKey[]
-            {
-                new (0f, 0.0f),  // start transparent
-                new (1f, 0.5f),  // middle visible
-                new (0f, 1.0f),  // end transparent
-            });
-        _lineRenderer.colorGradient = gradient;
-    }
+        FruitSpawner.OnFruitSpawn += OnFruitSpawn;
+    }    
 }

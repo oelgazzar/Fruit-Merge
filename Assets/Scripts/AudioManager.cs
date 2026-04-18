@@ -12,26 +12,26 @@ public class AudioManager : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
     }
-    private void MergeManager_OnFruitMerge(Fruit _, Fruit __, Fruit ___)
-    {
-        _audioSource.PlayOneShot(_mergeSfx);
-    }
-
     private void FruitController_OnFruitDropped(Fruit _)
     {
         _audioSource.PlayOneShot(_dropSfx);
     }
 
+    private void OnFruitMerge(Fruit _, Fruit __, Fruit ___)
+    {
+        _audioSource.PlayOneShot(_mergeSfx);
+    }
+
     private void OnEnable()
     {
-        FruitController.OnFruitDropCompleted += FruitController_OnFruitDropped;
-        MergeManager.OnFruitMerge += MergeManager_OnFruitMerge;
+        FruitController.OnFruitDrop += FruitController_OnFruitDropped;
+        MergeManager.OnFruitMerge += OnFruitMerge;
     }
 
 
     private void OnDisable()
     {
-        FruitController.OnFruitDropCompleted -= FruitController_OnFruitDropped;
-        MergeManager.OnFruitMerge -= MergeManager_OnFruitMerge;
+        FruitController.OnFruitDrop -= FruitController_OnFruitDropped;
+        MergeManager.OnFruitMerge -= OnFruitMerge;
     }    
 }

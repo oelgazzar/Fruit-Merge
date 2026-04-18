@@ -14,17 +14,25 @@ public class FruitTracker : MonoBehaviour
     {
         Instance = this;
     }
-    private void MergeManager_OnFruitMerge(Fruit fruit1, Fruit fruit2, Fruit newFruit)
+    private void OnFruitDrop(Fruit fruit)
+    {
+        _activeFruits.Add(fruit);
+        _currentFruit = null;
+    }
+
+    private void OnFruitSpawn(Fruit fruit)
+    {
+        // Useful in case of spawning after restoring state
+        if (_currentFruit != null)
+            Destroy(_currentFruit.gameObject);
+        _currentFruit = fruit;
+    }
+
+    private void OnFruitMerge(Fruit fruit1, Fruit fruit2, Fruit newFruit)
     {
         _activeFruits.Remove(fruit1);
         _activeFruits.Remove(fruit2);
         _activeFruits.Add(newFruit);
-        Debug.Log(_activeFruits.Count);
-    }
-    private void FruitController_OnFruitDropCompleted(Fruit fruit)
-    {
-        _activeFruits.Add(fruit);
-        _currentFruit = null;
     }
 
     public void RestoreActiveFruits(Fruit[] fruits)
@@ -40,26 +48,19 @@ public class FruitTracker : MonoBehaviour
         {
             _activeFruits.Add(fruit);
         }
-    }
+    }    
 
     private void OnEnable()
     {
-        FruitController.OnFruitDropCompleted += FruitController_OnFruitDropCompleted;
-        MergeManager.OnFruitMerge += MergeManager_OnFruitMerge;
-        FruitSpawner.OnFruitSpawn += FruitSpawner_OnFruitSpawn;
-    }
-
-    private void FruitSpawner_OnFruitSpawn(Fruit fruit)
-    {
-        if (_currentFruit != null)
-            Destroy(_currentFruit.gameObject);
-        _currentFruit = fruit;
+        FruitController.OnFruitDrop += OnFruitDrop;
+        MergeManager.OnFruitMerge += OnFruitMerge;
+        FruitSpawner.OnFruitSpawn += OnFruitSpawn;
     }
 
     private void OnDisable()
     {
-        FruitController.OnFruitDropCompleted -= FruitController_OnFruitDropCompleted;
-        MergeManager.OnFruitMerge -= MergeManager_OnFruitMerge;
-        FruitSpawner.OnFruitSpawn -= FruitSpawner_OnFruitSpawn;
+        FruitController.OnFruitDrop -= OnFruitDrop;
+        MergeManager.OnFruitMerge -= OnFruitMerge;
+        FruitSpawner.OnFruitSpawn -= OnFruitSpawn;
     }
 }

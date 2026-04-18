@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/*
+ * Spawn Fruits
+ * Manage Fruit Queue
+ */
+
 public class FruitSpawner : MonoBehaviour
 {
     [SerializeField] Fruit _fruitPrefab;
@@ -15,10 +20,10 @@ public class FruitSpawner : MonoBehaviour
     public static event Action<Fruit> OnFruitSpawn;
 
     public static FruitSpawner Instance { get; private set; }
-    public FruitModel[] Queue => _fruitQueue.ToArray();
 
     // This include both active and next n fruits
     readonly LinkedList<FruitModel> _fruitQueue = new();
+    public FruitModel[] Queue => _fruitQueue.ToArray();
     FruitModel[] NextQueue => _fruitQueue.ToArray()[1.._queueSize];
 
     private void Awake()
@@ -32,39 +37,12 @@ public class FruitSpawner : MonoBehaviour
         SpawnFruit(_fruitQueue.First());
     }
 
-    public void RestoreQueue(FruitModel[] queue)
-    {
-        _fruitQueue.Clear();
-
-        for (var i = 0; i < queue.Length; i++)
-        {
-            PushToQueue(queue[i]);
-        }
-
-        SpawnFruit(_fruitQueue.First());
-        OnNextQueueUpdated?.Invoke(NextQueue);
-    }
-
-
     private void InitFruitQueue()
     {
         for (var i = 0; i < _queueSize; i++)
         {
-            PushToQueue(GetRandomFruitModel());
+            _fruitQueue.AddLast(GetRandomFruitModel());
         }
-
-        OnNextQueueUpdated?.Invoke(NextQueue);
-    }
-
-    void PushToQueue(FruitModel fruitModel)
-    {
-        _fruitQueue.AddLast(fruitModel);
-    }
-
-    void AdvanceQueue()
-    {
-        _fruitQueue.RemoveFirst();
-        PushToQueue(GetRandomFruitModel());
 
         OnNextQueueUpdated?.Invoke(NextQueue);
     }
@@ -73,20 +51,45 @@ public class FruitSpawner : MonoBehaviour
     {
         var fruit = Instantiate(_fruitPrefab, _spawnPoint.position, Quaternion.identity);
         fruit.Init(fruitModel);
+        
+        // Translate up half height to align with spawn point
+        fruit.transform.Translate(Vector2.up * fruitModel.Size / 2);
+
         OnFruitSpawn?.Invoke(fruit);
     }
+
+    public void RestoreQueue(FruitModel[] queue)
+    {
+        _fruitQueue.Clear();
+
+        for (var i = 0; i < queue.Length; i++)
+        {
+            _fruitQueue.AddLast(queue[i]);
+        }
+
+        SpawnFruit(_fruitQueue.First());
+        OnNextQueueUpdated?.Invoke(NextQueue);
+    }    
+
+    void AdvanceQueue()
+    {
+        _fruitQueue.RemoveFirst();
+        _fruitQueue.AddLast(GetRandomFruitModel());
+
+        OnNextQueueUpdated?.Invoke(NextQueue);
+    }   
 
     FruitModel GetRandomFruitModel()
     {
         var score = ScoreManager.Instance.Score;
         var difficultyScoreRatio = (float) score / _spawnData.SpawnWeightCurve.MaxDifficultyScore;
         
-        var tierCount = _spawnData.Data.Fruits.Length;
+        var tierCount = _spawnData.Data.Data.Length;
 
         List<float> weights = new();
 
         float totalWeights = 0;
-        foreach (var fruitModel in _spawnData.Data.Fruits)
+        foreach (var fruitModel in _spawnData.Data.Data)
         {
             var tier = fruitModel.Tier;
             var startWeight = _spawnData.SpawnWeightCurve.TierWeights[tier].StartWeight;
@@ -103,7 +106,7 @@ public class FruitSpawner : MonoBehaviour
             var calculatedWeight = weights[i];
             if (r < calculatedWeight)
             {
-                return _spawnData.Data.Fruits[i];
+                return _spawnData.Data.Data[i];
             }
 
             r -= calculatedWeight;
@@ -111,20 +114,19 @@ public class FruitSpawner : MonoBehaviour
 
         return null;
     }
-
-    private void OnEnable()
-    {
-        FruitController.OnFruitDropCompleted += FruitController_OnFruitDropped;
-    }
-
-    private void OnDisable()
-    {
-        FruitController.OnFruitDropCompleted -= FruitController_OnFruitDropped;        
-    }
-
-    private void FruitController_OnFruitDropped(Fruit _)
+    void OnFruitDrop(Fruit _)
     {
         AdvanceQueue();
         SpawnFruit(_fruitQueue.First());
     }
+
+    private void OnEnable()
+    {
+        FruitController.OnFruitDrop += OnFruitDrop;
+    }
+
+    private void OnDisable()
+    {
+        FruitController.OnFruitDrop -= OnFruitDrop;        
+    }   
 }

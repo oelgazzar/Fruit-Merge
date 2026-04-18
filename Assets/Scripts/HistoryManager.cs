@@ -1,11 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Saves snapshots of every move
+ * Undo functionality
+ */
+
 public class HistoryManager : MonoBehaviour
 {
     [SerializeField] Fruit _fruitPrefab;
 
-    Stack<StateSnapshot> snapshotRecord = new ();
+    public static HistoryManager Instance { get; private set; }
+
+    readonly Stack<StateSnapshot> snapshotRecord = new();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void SaveSnapshot()
     {
@@ -14,7 +26,7 @@ public class HistoryManager : MonoBehaviour
             ScoreState = ScoreManager.Instance.Score,
             FruitQueueState = FruitSpawner.Instance.Queue,
             FruitsState = GetFruitsState(),
-            RandomState = UnityEngine.Random.state
+            RandomState = Random.state
         };
 
         snapshotRecord.Push(snapshot);
@@ -50,10 +62,10 @@ public class HistoryManager : MonoBehaviour
         ScoreManager.Instance.RestoreScore(snapshot.ScoreState);
         FruitSpawner.Instance.RestoreQueue(snapshot.FruitQueueState);
         SetFruitsState(snapshot.FruitsState);
-        UnityEngine.Random.state = snapshot.RandomState;
+        Random.state = snapshot.RandomState;
         Physics2D.Simulate(Time.fixedDeltaTime);
         Physics2D.simulationMode = SimulationMode2D.FixedUpdate;
-    }
+    }   
 
     void SetFruitsState(FruitState[] fruitsState)
     {
@@ -74,31 +86,24 @@ public class HistoryManager : MonoBehaviour
         FruitTracker.Instance.RestoreActiveFruits(fruits);
     }
 
-    private void OnEnable()
-    {
-        FruitController.OnFruitDropStarted += FruitController_OnFruitDropStarted;
-    }
-
-    private void OnDisable()
-    {
-        FruitController.OnFruitDropStarted -= FruitController_OnFruitDropStarted;
-    }
-
-    private void FruitController_OnFruitDropStarted(Fruit _)
+    private void OnFruitDropStarted(Fruit _)
     {
         SaveSnapshot();
     }
 
-    private void OnGUI()
+    public void Undo()
     {
-        if (GUI.Button(new Rect(10, 10, 100, 20), "Undo"))
-        {
-            Debug.Log("Undoing...");
-            if (snapshotRecord.Count > 0)
-            {
-                Debug.Log("Restoreing Snapshot " + (snapshotRecord.Count - 1));
-                RestoreSnapshot(snapshotRecord.Pop());
-            }
-        }
+        if (snapshotRecord.Count > 0)
+            RestoreSnapshot(snapshotRecord.Pop());
     }
+
+    private void OnEnable()
+    {
+        FruitController.OnFruitDropStarted += OnFruitDropStarted;
+    }
+
+    private void OnDisable()
+    {
+        FruitController.OnFruitDropStarted -= OnFruitDropStarted;
+    }    
 }
